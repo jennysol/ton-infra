@@ -57,13 +57,11 @@ resource "aws_iam_policy" "dynamodb_access_policy" {
   })
 }
 
-# Attach the custom DynamoDB policy to the role
 resource "aws_iam_role_policy_attachment" "eb_ec2_dynamodb_policy_attachment" {
   role       = aws_iam_role.eb_ec2_role.name
   policy_arn = aws_iam_policy.dynamodb_access_policy.arn
 }
 
-# Instance profile for Elastic Beanstalk EC2
 resource "aws_iam_instance_profile" "eb_ec2_instance_profile" {
   name = "aws-elasticbeanstalk-ec2-role"
   role = aws_iam_role.eb_ec2_role.name
