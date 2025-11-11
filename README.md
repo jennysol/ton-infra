@@ -8,6 +8,9 @@ A infraestrutura provisionada inclui:
 
 - **AWS Elastic Beanstalk**: Aplicação Node.js 22 em Amazon Linux 2023
 - **DynamoDB**: Banco de dados NoSQL com índice secundário global
+- **CloudFront**: CDN para distribuição global com certificado SSL
+- **ACM (Certificate Manager)**: Certificado SSL para domínio personalizado
+- **Route 53**: DNS para domínio personalizado
 - **IAM**: Roles e políticas para acesso seguro aos recursos
 - **S3**: Bucket para armazenamento de artefatos de deploy
 
@@ -18,6 +21,8 @@ A infraestrutura provisionada inclui:
 ├── locals.tf       # Variáveis locais do projeto
 ├── eb.tf           # Configuração do Elastic Beanstalk
 ├── dynamodb.tf     # Configuração da tabela DynamoDB
+├── cloudfront.tf   # Configuração do CloudFront CDN
+├── cert.tf         # Certificado SSL e validação DNS
 ├── iam.tf          # Roles e políticas IAM
 ├── s3.tf           # Bucket S3 para deploy
 ```
@@ -52,11 +57,26 @@ A infraestrutura provisionada inclui:
   - CloudWatch Agent
   - Operações DynamoDB (GetItem, PutItem, Query, Scan, etc.)
 
+### CloudFront
+- **Distribuição**: CDN global para melhor performance
+- **Domínio**: jenifer-ton-app.com
+- **Certificado SSL**: Provisionado via ACM com validação DNS
+- **Protocolo**: Redirecionamento automático HTTP para HTTPS
+- **Caching**: Configurado para APIs (TTL=0 para conteúdo dinâmico)
+- **Métodos permitidos**: GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
+
+### Route 53
+- **Zona DNS**: Gerenciamento do domínio jenifer-ton-app.com
+- **Registro A**: Aponta para a distribuição CloudFront
+- **Validação SSL**: Registro para validação automática do certificado
+
 ## Pré-requisitos
 
 1. **Terraform**: >= 1.0
 2. **AWS CLI**: Configurado com credenciais válidas
-3. **Conta AWS**: Com permissões para criar recursos EC2, DynamoDB, IAM, S3 e Elastic Beanstalk
+3. **Conta AWS**: Com permissões para criar recursos EC2, DynamoDB, IAM, S3, Elastic Beanstalk, CloudFront, ACM e Route 53
+4. **Domínio próprio**: Configurado no Route 53 (zona DNS já existente)
+5. **Zona Route 53**: O domínio deve estar configurado no Route 53 com o zone_id correto
 
 ## Configuração das Credenciais AWS
 
@@ -103,6 +123,10 @@ Após o deploy bem-sucedido, você pode verificar:
 1. **Elastic Beanstalk**: Acesse o console AWS e verifique se a aplicação está rodando
 2. **DynamoDB**: Confirme se a tabela `ton-app` foi criada com os índices corretos
 3. **S3**: Verifique se o bucket foi criado
+4. **CloudFront**: Confirme se a distribuição foi criada e está ativa
+5. **ACM**: Verifique se o certificado SSL foi emitido e validado
+6. **Route 53**: Confirme se o registro A foi criado apontando para o CloudFront
+7. **Acesso**: Teste o acesso via HTTPS no domínio configurado
 
 ## Limpeza
 
